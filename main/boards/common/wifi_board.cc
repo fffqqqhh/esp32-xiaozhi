@@ -53,7 +53,7 @@ void WifiBoard::EnterWifiConfigMode() {
     hint += "\n\n";
     
     // 播报配置 WiFi 的提示
-    application.Alert(Lang::Strings::WIFI_CONFIG_MODE, hint.c_str(), "", Lang::Sounds::P3_WIFICONFIG);
+    // application.Alert(Lang::Strings::WIFI_CONFIG_MODE, hint.c_str(), "", Lang::Sounds::P3_WIFICONFIG);
     
     // Wait forever until reset after configuration
     while (true) {
@@ -82,21 +82,24 @@ void WifiBoard::StartNetwork() {
 
     auto& wifi_station = WifiStation::GetInstance();
     wifi_station.OnScanBegin([this]() {
-        auto display = Board::GetInstance().GetDisplay();
-        display->ShowNotification(Lang::Strings::SCANNING_WIFI, 30000);
+        // auto display = Board::GetInstance().GetDisplay();
+        // display->ShowNotification(Lang::Strings::SCANNING_WIFI, 30000);
+        ESP_LOGI(TAG,"[User]:Scanning wifi");
     });
     wifi_station.OnConnect([this](const std::string& ssid) {
-        auto display = Board::GetInstance().GetDisplay();
+        // auto display = Board::GetInstance().GetDisplay();
         std::string notification = Lang::Strings::CONNECT_TO;
         notification += ssid;
         notification += "...";
-        display->ShowNotification(notification.c_str(), 30000);
+        // display->ShowNotification(notification.c_str(), 30000);
+        ESP_LOGI(TAG,"[User]:Connecting to wifi : %s",notification.c_str());
     });
     wifi_station.OnConnected([this](const std::string& ssid) {
-        auto display = Board::GetInstance().GetDisplay();
+        // auto display = Board::GetInstance().GetDisplay();
         std::string notification = Lang::Strings::CONNECTED_TO;
         notification += ssid;
-        display->ShowNotification(notification.c_str(), 30000);
+        // display->ShowNotification(notification.c_str(), 30000);
+        ESP_LOGI(TAG,"[User]:Connected to wifi : %s",notification.c_str());
     });
     wifi_station.Start();
 

@@ -144,11 +144,11 @@ private:
 public:
     EspBox3Board() : boot_button_(BOOT_BUTTON_GPIO) {
         InitializeI2c();
-        InitializeSpi();
-        InitializeIli9341Display();
+        // InitializeSpi();
+        // InitializeIli9341Display();
         InitializeButtons();
         InitializeIot();
-        GetBacklight()->RestoreBrightness();
+        // GetBacklight()->RestoreBrightness();
     }
 
     virtual AudioCodec* GetAudioCodec() override {
