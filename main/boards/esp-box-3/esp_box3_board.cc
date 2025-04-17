@@ -7,6 +7,8 @@
 #include "button.h"
 #include "config.h"
 #include "iot/thing_manager.h"
+#include "led/user_wsrgb.h"
+#include "led_strip_ctl.h"
 
 #include <esp_log.h>
 #include <esp_lcd_panel_vendor.h>
@@ -45,6 +47,7 @@ private:
     i2c_master_bus_handle_t i2c_bus_;
     Button boot_button_;
     LcdDisplay* display_;
+    UserWsRgb* led_strip_;
 
     void InitializeI2c() {
         // Initialize I2C peripheral
@@ -138,7 +141,10 @@ private:
     void InitializeIot() {
         auto& thing_manager = iot::ThingManager::GetInstance();
         thing_manager.AddThing(iot::CreateThing("Speaker"));
-        thing_manager.AddThing(iot::CreateThing("Screen"));
+        // thing_manager.AddThing(iot::CreateThing("Screen"));
+        led_strip_ = new UserWsrgb(GPIO_NUM_40,12);
+        auto led_strip_ctl = new LedStripCtl(led_strip_);
+        thing_manager.AddThing(led_strip_ctl);
     }
 
 public:
