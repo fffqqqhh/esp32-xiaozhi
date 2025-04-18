@@ -35,25 +35,25 @@ LedStripCtl::LedStripCtl(UserWsrgb* led_strip)
 
         //从设置中读取亮度等级
         Settings settings("led_strip");
-        brightness_level_ = settings.GetInt("brightness", 4); //默认等级4
-        led_strip_->SetBrightness(brightness_level_,4);
+        brightness_level_ = settings.GetInt("brightness", 2);
+        // led_strip_->SetBrightness(brightness_level_,0);
 
         //定时设备的属性
-        properties_.AddNumberProperty("brightness", "对话时的亮度等级(1-8)", [this]()->int {
+        properties_.AddNumberProperty("brightness", "对话时的亮度等级(2-10)", [this]()->int {
             return brightness_level_;
         });
 
         //定义设备可以被远程执行的指令
-        methods_.AddMethod("SetBrightness", "设置亮度等级(1-8)", ParameterList({
-            Parameter("level", "亮度等级(1-8)", kValueTypeNumber ,true)
+        methods_.AddMethod("SetBrightness", "设置亮度等级(2-10)", ParameterList({
+            Parameter("level", "亮度等级(2-10)", kValueTypeNumber ,true)
         }),[this](const ParameterList& parameters){
             int level = static_cast<int>(parameters["level"].number());
             ESP_LOGI(TAG, "Set LedStrip Brightness level to %d", level);
 
-            if(level < 1)
-                level = 1;
-            if(level > 8)
-                level = 8;
+            if(level < 2)
+                level = 2;
+            if(level > 10)
+                level = 10;
             
             brightness_level_ = level;
             // led_strip_->SetBrightness(LevelToBrightness(brightness_level_),4);
@@ -64,9 +64,11 @@ LedStripCtl::LedStripCtl(UserWsrgb* led_strip)
             settings.SetInt("brightness", brightness_level_);
         });
 
-        methods_.AddMethod("TurnOn","打开氛围灯", ParameterList(), [this](const ParameterList& parameters){
+        methods_.AddMethod("TurnOn","打开氛围灯", ParameterList({
+            Parameter("level", "亮度等级(2-10)", kValueTypeNumber, true)
+        }), [this](const ParameterList& parameters){
             ESP_LOGI(TAG, "Turn On LedStrip");
-            led_strip_->TurnOn();
+            led_strip_->TurnOn((uint8_t)brightness_level_);
         });
 
         methods_.AddMethod("TurnOff","关闭氛围灯", ParameterList(), [this](const ParameterList& parameters){
@@ -74,7 +76,7 @@ LedStripCtl::LedStripCtl(UserWsrgb* led_strip)
             led_strip_->TurnOff();
         });
            
-        methods_.AddMethod("SetSingleColor", "设置单个灯颜色", ParameterList({
+        methods_.AddMethod("SetSingleColor", "设置单个灯颜色(红色,绿色,蓝色,白色,橘黄色)", ParameterList({
             Parameter("index","灯珠索引(0-11)",kValueTypeNumber,true),
             Parameter("red","红色(0-255)",kValueTypeNumber,true),
             Parameter("green","绿色(0-255)",kValueTypeNumber,true),
@@ -90,7 +92,7 @@ LedStripCtl::LedStripCtl(UserWsrgb* led_strip)
             led_strip_->SetSingleColor(index, color);
         });
 
-        methods_.AddMethod("SetAllColor", "设置所有灯珠颜色", ParameterList({
+        methods_.AddMethod("SetAllColor", "设置所有灯珠颜色(红色,绿色,蓝色,白色,橘黄色)", ParameterList({
             Parameter("red","红色(0-255)",kValueTypeNumber,true),
             Parameter("green","绿色(0-255)",kValueTypeNumber,true),
             Parameter("blue","蓝色(0-255)",kValueTypeNumber,true)
@@ -122,24 +124,25 @@ LedStripCtl::LedStripCtl(UserWsrgb* led_strip)
             ESP_LOGI(TAG, "Blink LedStrip with color %d,%d,%d, interval %d ms", color.r, color.g, color.b, interval);
             led_strip_->Blink(color, interval);
         });
-#if 0
-        methods_.AddMethod("Scroll","跑马灯动画", ParameterList({
+
+        methods_.AddMethod("Always","常亮", ParameterList(),[this](const ParameterList& parameters){
+            led_strip_->Always();
+        });
+
+        methods_.AddMethod("Breathe","呼吸效果",ParameterList({
             Parameter("red","红色(0-255)",kValueTypeNumber,true),
             Parameter("green","绿色(0-255)",kValueTypeNumber,true),
             Parameter("blue","蓝色(0-255)",kValueTypeNumber,true),
-            Parameter("length","滚动条长度(1-7)",kValueTypeNumber,true),
             Parameter("interval","间隔时间(ms)",kValueTypeNumber,true)
         }),[this](const ParameterList& parameters){
             int interval = parameters["interval"].number();
-            int length = parameters["length"].number();
-            RGBColor low = RGBToColor(4,4,4);
-            RGBColor high = RGBToColor(
+            RGBColor color = RGBToColor(
                 parameters["red"].number(),
                 parameters["green"].number(),
                 parameters["blue"].number()
             );
-            ESP_LOGI(TAG, "Scroll LedStrip with color %d,%d,%d, length %d, interval %d ms", high.red, high.green, high.blue, length, interval);
-            led_strip_->Scroll(low, high, length, interval);
+            ESP_LOGI(TAG, "Breathe LedStrip with color %d,%d,%d, interval %d ms", color.r, color.g, color.b, interval);
+            led_strip_->Breathe(color, interval);
+            // led_strip_->Breathe(interval);
         });
-#endif
     }
