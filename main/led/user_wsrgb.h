@@ -31,6 +31,9 @@ public:
     virtual ~UserWsrgb();
 
     void OnStateChanged() override;
+    bool GetLedPowerState() const;
+    void SetLedPowerState(bool state);
+    uint8_t GetBrightness() const;
     void SetBrightness(uint8_t defaultBrightness,uint8_t lowBrightness);
     void SetAllColor(RGBColor color);
     void SetSingleColor(uint8_t index, RGBColor color);
@@ -54,7 +57,9 @@ private:
     std::vector<RGBColor> colors_;
     std::vector<HSVColor> hsvColors_;
 
-    uint8_t defaultBrightness_ = DEFAULT_BRIGHTNESS;
+    bool powerState_ = false;
+
+    uint8_t defaultBrightness_;
     uint8_t lowBrightness_ = LOW_BRIGHTNESS;
 
     void StartStripTimerTask(int intervalMs, std::function<void()> callback);

@@ -21,6 +21,7 @@ UserWsrgb::UserWsrgb(gpio_num_t gpio,uint8_t maxLeds) : maxLeds_(maxLeds) {
         colors_[i].g = 0;
         colors_[i].b = 0;
     }
+    defaultBrightness_ = DEFAULT_BRIGHTNESS;
 
     led_strip_config_t strip_config = {};
     strip_config.strip_gpio_num = gpio;
@@ -171,6 +172,22 @@ void UserWsrgb::RgbToHsv(uint8_t R, uint8_t G, uint8_t B, uint16_t* h, uint16_t*
     // ESP_LOGI(TAG,"RgbToHsv: R=%d, G=%d, B=%d, h=%d, s=%d, v=%d",R,G,B,*h,*s,*v);
 }
 
+bool UserWsrgb::GetLedPowerState() const{
+    return powerState_;
+}
+
+void UserWsrgb::SetLedPowerState(bool powerState){
+    if(powerState_ == powerState){
+        return ;
+    }
+
+    powerState_ = powerState;
+}
+
+uint8_t UserWsrgb::GetBrightness() const{
+    return defaultBrightness_;
+}
+
 void UserWsrgb::SetBrightness(uint8_t defaultBrightness,uint8_t lowBrightness){
     defaultBrightness_ = defaultBrightness;
 
@@ -185,6 +202,8 @@ void UserWsrgb::SetBrightness(uint8_t defaultBrightness,uint8_t lowBrightness){
 
 void UserWsrgb::TurnOn(uint8_t brightness) {
     defaultBrightness_ = brightness;
+    ESP_LOGI(TAG, "TurnOn: brightness=%d", defaultBrightness_);
+    powerState_ = true;
     if(colors_[1].r == 0 && colors_[1].g == 0 && colors_[1].b == 0)
     {
         for(int i=0;i<maxLeds_;i++){
@@ -212,6 +231,7 @@ void UserWsrgb::TurnOn(uint8_t brightness) {
 }
 
 void UserWsrgb::TurnOff() {
+    powerState_ = false;
     esp_timer_stop(stripTimer_);
     led_strip_clear(ledStrip_);
 }

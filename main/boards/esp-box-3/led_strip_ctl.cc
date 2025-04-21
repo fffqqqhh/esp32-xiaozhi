@@ -37,15 +37,20 @@ LedStripCtl::LedStripCtl(UserWsrgb* led_strip)
         Settings settings("led_strip");
         brightness_level_ = settings.GetInt("brightness", 2);
         // led_strip_->SetBrightness(brightness_level_,0);
+        led_state = false;
 
         //定时设备的属性
-        properties_.AddNumberProperty("brightness", "对话时的亮度等级(2-10)", [this]()->int {
+        properties_.AddNumberProperty("brightness", "对话时的亮度等级(1-10)", [this]()->int {
             return brightness_level_;
         });
 
+        properties_.AddBooleanProperty("on", "灯带是否打开", [this]()->bool {
+            return led_state;
+        });
+
         //定义设备可以被远程执行的指令
-        methods_.AddMethod("SetBrightness", "设置亮度等级(2-10)", ParameterList({
-            Parameter("level", "亮度等级(2-10)", kValueTypeNumber ,true)
+        methods_.AddMethod("SetBrightness", "设置亮度等级(1-10)", ParameterList({
+            Parameter("level", "亮度等级(1-10)", kValueTypeNumber ,true)
         }),[this](const ParameterList& parameters){
             int level = static_cast<int>(parameters["level"].number());
             ESP_LOGI(TAG, "Set LedStrip Brightness level to %d", level);
@@ -65,14 +70,16 @@ LedStripCtl::LedStripCtl(UserWsrgb* led_strip)
         });
 
         methods_.AddMethod("TurnOn","打开氛围灯", ParameterList({
-            Parameter("level", "亮度等级(2-10)", kValueTypeNumber, true)
+            Parameter("level", "亮度等级(1-10)", kValueTypeNumber, true)
         }), [this](const ParameterList& parameters){
             ESP_LOGI(TAG, "Turn On LedStrip");
+            led_state = true;
             led_strip_->TurnOn((uint8_t)brightness_level_);
         });
 
         methods_.AddMethod("TurnOff","关闭氛围灯", ParameterList(), [this](const ParameterList& parameters){
             ESP_LOGI(TAG, "Turn Off LedStrip");
+            led_state = false;
             led_strip_->TurnOff();
         });
            
