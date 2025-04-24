@@ -179,7 +179,7 @@ void Application::ShowActivationCode() {
     }};
 
     // This sentence uses 9KB of SRAM, so we need to wait for it to finish
-    // Alert(Lang::Strings::ACTIVATION, message.c_str(), "happy", Lang::Sounds::P3_ACTIVATION);
+    Alert(Lang::Strings::ACTIVATION, message.c_str(), "happy", Lang::Sounds::P3_ACTIVATION);
     ESP_LOGI(TAG,"message %s.",message.c_str());
     vTaskDelay(pdMS_TO_TICKS(1000));
     background_task_->WaitForCompletion();
