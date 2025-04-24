@@ -18,6 +18,7 @@
 
 #define TAG "Application"
 
+static bool s_connectedTips = false;
 
 static const char* const STATE_STRINGS[] = {
     "unknown",
@@ -736,6 +737,10 @@ void Application::SetDeviceState(DeviceState state) {
 #if CONFIG_USE_WAKE_WORD_DETECT
             wake_word_detect_.StartDetection();
 #endif
+            if(s_connectedTips){
+                Alert(Lang::Strings::CONNECTED_TO, Lang::Strings::CONNECTED_TO, "happy", Lang::Sounds::P3_WELCOME);
+                s_connectedTips = true;
+            }
             break;
         case kDeviceStateConnecting:
             // display->SetStatus(Lang::Strings::CONNECTING);
