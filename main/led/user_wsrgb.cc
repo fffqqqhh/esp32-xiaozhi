@@ -333,5 +333,34 @@ void UserWsrgb::StartStripTimerTask(int intervalMs, std::function<void()> callba
 }
 
 void UserWsrgb::OnStateChanged(){
+    static bool _fristTips = false;
     ESP_LOGI(TAG, "OnStateChanged");
+    auto& app = Application::GetInstance();
+    auto device_state = app.GetDeviceState();
+    if(device_state == kDeviceStateIdle){
+        if(_fristTips == false){
+            /*
+            for(int i=0;i<maxLeds_;i++){
+                colors_[i].r = 0;
+                colors_[i].g = 32;
+                colors_[i].b = 64;
+                RgbToHsv(colors_[i].r,colors_[i].g,colors_[i].b,&hsvColors_[i].h,&hsvColors_[i].s,&hsvColors_[i].v);
+                
+                hsvColors_[i].v = defaultBrightness_*1000;
+                HsvToRgb(hsvColors_[i].h,hsvColors_[i].s,hsvColors_[i].v,&colors_[i].r,&colors_[i].g,&colors_[i].b);
+    
+                led_strip_set_pixel(ledStrip_, i, colors_[i].r, colors_[i].g, colors_[i].b);
+            }
+            led_strip_refresh(ledStrip_);
+            */
+           powerState_ = true;
+           
+           RGBColor breathcolor;
+           breathcolor.r = 0;
+           breathcolor.g = 0;
+           breathcolor.b = 255;
+            Breathe(breathcolor,200);
+            _fristTips = true;
+        }
+    }
 }
