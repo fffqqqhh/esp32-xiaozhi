@@ -201,6 +201,7 @@ void BoxAudioCodec::EnableInput(bool enable) {
         }
         ESP_ERROR_CHECK(esp_codec_dev_open(input_dev_, &fs));
         ESP_ERROR_CHECK(esp_codec_dev_set_in_channel_gain(input_dev_, ESP_CODEC_DEV_MAKE_CHANNEL_MASK(0), 40.0));
+        ESP_ERROR_CHECK(esp_codec_dev_set_in_channel_gain(input_dev_, ESP_CODEC_DEV_MAKE_CHANNEL_MASK(1), 40.0));
     } else {
         ESP_ERROR_CHECK(esp_codec_dev_close(input_dev_));
     }
